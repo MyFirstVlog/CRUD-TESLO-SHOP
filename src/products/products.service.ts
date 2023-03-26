@@ -1,5 +1,6 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PassThrough } from 'stream';
 import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -17,10 +18,6 @@ export class ProductsService {
 
   async create(createProductDto: CreateProductDto) {
     try {
-
-      console.log(" me ejectu", createProductDto);
-      
-
       // if(!createProductDto.slug){
       //   createProductDto.slug = createProductDto.title
       //     .toLowerCase()
@@ -41,20 +38,43 @@ export class ProductsService {
     }
   }
 
-  findAll() {
-    return `This action returns all products`;
+  async findAll(): Promise<Product[]>{
+    try {
+      return await this.productRepository.find({});
+    } catch (error) {
+      this.handleExceptions(error);
+    }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: string) {
+    try {
+      const product = await this.productRepository.findOneBy({id});
+
+      if(!product) throw new NotFoundException(`The product with id ${id} not found !!!`);
+
+      return product;
+    } catch (error) {
+      
+      this.handleExceptions(error);
+    }
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
     return `This action updates a #${id} product`;
   }
 
-  remove(id: number) { 
-    return `This action removes a #${id} product`;
+  async remove(id: string) { 
+    try {
+      const product = await this.findOne(id);
+
+      await this.productRepository.remove(product);
+
+      return product
+
+    } catch (error) {
+      
+      this.handleExceptions(error);
+    }
   }
 
   private handleExceptions( error: any){
