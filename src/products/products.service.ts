@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PassThrough } from 'stream';
+import { PaginationDto } from '../common/dtos/pagination.dto';
 import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
@@ -16,7 +16,7 @@ export class ProductsService {
     private readonly productRepository: Repository<Product>,
   ){}
 
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto): Promise<Product> {
     try {
       // if(!createProductDto.slug){
       //   createProductDto.slug = createProductDto.title
@@ -38,15 +38,22 @@ export class ProductsService {
     }
   }
 
-  async findAll(): Promise<Product[]>{
+  async findAll(paginationDto: PaginationDto): Promise<Product[]>{
     try {
-      return await this.productRepository.find({});
+
+      const {limit, offset} = paginationDto;
+
+      return await this.productRepository.find({
+        take: limit,
+        skip: offset
+      });
+
     } catch (error) {
       this.handleExceptions(error);
     }
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<Product>{
     try {
       const product = await this.productRepository.findOneBy({id});
 
@@ -59,8 +66,8 @@ export class ProductsService {
     }
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  update(id: number, updateProductDto: UpdateProductDto){
+    return [];
   }
 
   async remove(id: string) { 
