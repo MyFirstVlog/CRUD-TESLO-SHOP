@@ -77,8 +77,26 @@ export class ProductsService {
     }
   }
 
-  update(id: number, updateProductDto: UpdateProductDto){
-    return [];
+  async update(id: string, updateProductDto: UpdateProductDto){
+
+    try {
+
+      const product = await this.productRepository.preload({
+        id: id,
+        ...updateProductDto,
+      });
+
+      if(!product) throw new NotFoundException(`product with id: ${id}, not found`);
+
+      await this.productRepository.save(product);
+
+      return product;
+    
+    } catch (error) {
+      
+      this.handleExceptions(error);
+
+    }
   }
 
   async remove(id: string) { 
@@ -96,7 +114,7 @@ export class ProductsService {
   }
 
   private handleExceptions( error: any){
-    console.log({error});
+    console.log({error}, error);
     const {detail, response} = !!error && error;
     if(error.code === '23505' || !String(error.status).includes('5'))
         throw new BadRequestException(detail || response);
