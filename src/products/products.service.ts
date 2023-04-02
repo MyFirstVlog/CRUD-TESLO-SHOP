@@ -1,11 +1,12 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from './entities/product.entity';
 import { validate as isUUID } from 'uuid'
+import { log } from 'console';
 export class ProductsService {
 
   private readonly logger = new Logger("ProductsService");
@@ -58,7 +59,13 @@ export class ProductsService {
       if(isUUID(term)){
         product = await this.productRepository.findOneBy({id: term});
       }else{
-        product = await this.productRepository.findOneBy({slug: term});
+        // product = await this.productRepository.findOneBy({slug: term});
+        const queryBulder = this.productRepository.createQueryBuilder();
+        product = await queryBulder
+          .where('UPPER(title) =:title or slug =:slug', {
+            title: term.toUpperCase(),
+            slug: term.toLowerCase()
+          }).getOne();
       }
 
       if(!product) throw new NotFoundException(`The product with term ${term} not found !!!`);
@@ -89,10 +96,12 @@ export class ProductsService {
   }
 
   private handleExceptions( error: any){
-    if(error.code === '23505')
-        throw new BadRequestException(error.detail);
+    console.log({error});
+    const {detail, response} = !!error && error;
+    if(error.code === '23505' || !String(error.status).includes('5'))
+        throw new BadRequestException(detail || response);
       
-      this.logger.error(error);
-      throw new InternalServerErrorException("Unexpected error, check server logs");
+    this.logger.error(error);
+    throw new InternalServerErrorException("Unexpected error, check server logs");
   } 
 }
