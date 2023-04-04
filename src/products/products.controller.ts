@@ -19,6 +19,11 @@ export class ProductsController {
     return this.productsService.findAll(paginationDto);
   }
 
+  @Get('/plained/:term')
+  findOnePlained(@Param('term') term: string) {
+    return this.productsService.findOnePlained(term);
+  }
+
   @Get(':term')
   findOne(@Param('term') term: string) {
     return this.productsService.findOne(term);
