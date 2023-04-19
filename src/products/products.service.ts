@@ -1,7 +1,7 @@
 import { BadRequestException, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product, ProductImage} from './entities';
@@ -15,6 +15,8 @@ export class ProductsService {
     private readonly productRepository: Repository<Product>,
     @InjectRepository(ProductImage)
     private readonly productImageRepository: Repository<ProductImage>,
+
+    private readonly dataSource: DataSource, 
   ){}
 
   plainImagesUrls(products: Product[]){
@@ -76,7 +78,7 @@ export class ProductsService {
             title: term.toUpperCase(),
             slug: term.toLowerCase()
           })
-          .leftJoinAndSelect("prod.images", "prodImages") //? "prodImages" In case we need more joins down
+          .leftJoinAndSelect("prod.images", "prodImages") //? "prodImages" alias del imafes, In case we need more joins down
           .getOne();
       }
 
@@ -99,13 +101,18 @@ export class ProductsService {
 
     try {
 
+      const {images, ...toUpdate} = updateProductDto;
+
       const product = await this.productRepository.preload({
         id: id,
-        ...updateProductDto,
-        images: []
+        ...toUpdate,
       });
 
       if(!product) throw new NotFoundException(`product with id: ${id}, not found`);
+
+      //Create query runner if there are images
+
+      const queryRunner = 
 
       await this.productRepository.save(product);
 
