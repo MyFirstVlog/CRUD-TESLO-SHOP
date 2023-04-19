@@ -118,11 +118,12 @@ export class ProductsService {
         product.images = images.map(image => 
           this.productImageRepository.create({url: image})
         );
-      } else {}
+      }
       // await this.productRepository.save(product);
-      await queryRunner.manager.save(product);
+       await queryRunner.manager.save(product);
       await queryRunner.commitTransaction();
       await queryRunner.release();
+
       return this.findOnePlained(id);
     } catch (error) {
       queryRunner.rollbackTransaction();
@@ -154,4 +155,13 @@ export class ProductsService {
     this.logger.error(error);
     throw new InternalServerErrorException("Unexpected error, check server logs");
   } 
+
+  async deleteAllProducts() {
+     const queryBuilder = this.productRepository.createQueryBuilder('product');
+     try {
+        return await queryBuilder.delete().where({}).execute();
+     } catch (error) {
+      this.handleExceptions(error);
+     }
+  }
 }
