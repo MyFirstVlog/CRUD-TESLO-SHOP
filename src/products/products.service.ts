@@ -34,7 +34,7 @@ export class ProductsService {
 
       const product  = this.productRepository.create({
         ...productDetails,
-        images: imageUrls.map(image => this.productImageRepository.create({url: image}))
+        images: imageUrls.map(image => this.productImageRepository.create({url: image})) // The await resolving down is also waiting for that inner promise of prod images creation
       });
 
       await this.productRepository.save(product);

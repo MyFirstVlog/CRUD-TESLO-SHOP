@@ -4,7 +4,7 @@ import { Product } from "./";
 
 
 
-@Entity()
+@Entity({name: 'porduct_images'})
 export class ProductImage {
 
     @PrimaryGeneratedColumn()
