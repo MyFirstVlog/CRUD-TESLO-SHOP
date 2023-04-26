@@ -1,31 +1,47 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UploadedFile, UseInterceptors, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UploadedFile, UseInterceptors, BadRequestException, Res } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { fileFilter } from './helpers/fileFilter.helper';
+import { fileFilter, fileNamer } from './helpers';
 import { diskStorage } from 'multer';
+import { Response } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('files')
 export class FilesController {
-  constructor(private readonly filesService: FilesService) {}
+  constructor(
+    private readonly filesService: FilesService,
+    private readonly configService: ConfigService
+  ) {}
+
+  @Get('product/:imageName')
+  findOneProduct(
+    @Res() res: Response, // When we add this decorator we automatically deactivate the nest return and we've to do it manually
+    @Param('imageName') imageName: string
+  ){
+    const path = this.filesService.getStaticProductImage(imageName);
+    res.status(302).sendFile(path);
+  }
 
    @Post('product')
    @UseInterceptors(FileInterceptor('file', {
     fileFilter: fileFilter,
     //limits: {fileSize: 1000}
     storage: diskStorage({
-      destination: './static/uploads'
+      destination: './static/products',
+      filename: fileNamer
     })
    }))
    uploadProductImage(
       @UploadedFile() file: Express.Multer.File,
    ){
-
-    console.log("file in controller", file)
-
     if( !file ) throw new BadRequestException('Make sure that file is an image');
 
+    // const secureUrl = file.filename;
+
+    const secureUrl = `${this.configService.get('HOST_API')}/files/product/${file.filename}`;
+
     return {
-      fileName: file.originalname,
+      secureUrl
     }
    }
 }
