@@ -32,7 +32,7 @@ class JWTStrategy extends PassportStrategy( Strategy) {
         const user = await this.userRepository.findOneBy({email});
 
         if (!user) throw new UnauthorizedException('token not valid');
-        if (!user.isActive) throw new UnauthorizedException('Userd is inactive, talk with an admin');
+        if (!user.isActive) throw new UnauthorizedException('User is inactive, talk with an admin');
 
         return user; //returning this, will help us to access to the user as Request.user in all places where you interact with it. This help us to create decorator to access the user
     }
