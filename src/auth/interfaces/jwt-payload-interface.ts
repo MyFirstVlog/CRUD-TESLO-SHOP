@@ -1,6 +1,6 @@
 
 export interface  JwtPayload {
-    email: string;
+    id: string;
 
     //TODO  attributes we want to load in the payload
 }

@@ -27,9 +27,9 @@ class JWTStrategy extends PassportStrategy( Strategy) {
 
     async validate( payload: JwtPayload): Promise<User>{
 
-        const {email} = payload;
+        const {id: userId} = payload;
 
-        const user = await this.userRepository.findOneBy({email});
+        const user = await this.userRepository.findOneBy({id: userId});
 
         if (!user) throw new UnauthorizedException('token not valid');
         if (!user.isActive) throw new UnauthorizedException('User is inactive, talk with an admin');
