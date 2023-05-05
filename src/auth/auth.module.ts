@@ -6,6 +6,7 @@ import { User } from './entities/users.entity';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JWTStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -26,16 +27,17 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           }
         } 
       }
-    })
+    }),
     // JwtModule.register({ // it might be possible that the app does not have env variables in the moment the app is mounted, in this case, we use registerAsync 
     //   secret: process.env.JWT_SECRET,
     //   signOptions: {
     //     expiresIn: '24h'
     //   }
-    // })
+    // }),
+    ConfigModule
   ],
   controllers: [AuthController],
-  providers: [AuthService],
-  exports: [TypeOrmModule]
+  providers: [AuthService, JWTStrategy],
+  exports: [TypeOrmModule, JWTStrategy, PassportModule, JwtModule]
 })
 export class AuthModule {}
