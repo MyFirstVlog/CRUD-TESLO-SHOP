@@ -16,7 +16,7 @@ class JWTStrategy extends PassportStrategy( Strategy) {
     constructor(
         @InjectRepository(User)
         private readonly userRepository: Repository<User>,
-        configService: ConfigService
+        configService: ConfigService,
     ){
         super({
             secretOrKey: configService.get('JWT_SECRET'),
@@ -39,5 +39,5 @@ class JWTStrategy extends PassportStrategy( Strategy) {
 }
 
 export {
-    JWTStrategy
+    JWTStrategy,
 }
