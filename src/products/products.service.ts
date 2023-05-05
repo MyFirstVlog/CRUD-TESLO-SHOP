@@ -78,7 +78,7 @@ export class ProductsService {
             title: term.toUpperCase(),
             slug: term.toLowerCase()
           })
-          .leftJoinAndSelect("prod.images", "prodImages") //? "prodImages" alias del imafes, In case we need more joins down
+          .innerJoinAndSelect("prod.images", "prodImages") //? "prodImages" alias del imafes, In case we need more joins down
           .getOne();
       }
 
