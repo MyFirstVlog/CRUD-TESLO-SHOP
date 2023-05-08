@@ -14,8 +14,14 @@ export class CustomRolesGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const validRoles: string[]  = this.reflector.get(META_ROLES, context.getHandler());
+    const validRoles: string[]  = this.reflector.getAllAndOverride(META_ROLES, [
+      context.getHandler(),
+      context.getClass(),
+ ]);
+    
+
     const user = context.switchToHttp().getRequest().user as User; 
+    console.log({validRoles, user})
     
     if(!validRoles) return true;
     if(validRoles.length === 0) return true;
