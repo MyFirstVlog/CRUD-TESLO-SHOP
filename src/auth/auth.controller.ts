@@ -1,10 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Req, Headers, SetMetadata } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateuserDto } from './dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser, RawHeaders } from './decorators/custom-decorators.decorator';
 import { User } from './entities/users.entity';
+import { IncomingHttpHeaders } from 'http';
+import { CustomRolesGuard } from './guards/custom-roles.guard.ts/custom-roles.guard.ts.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -26,14 +28,25 @@ export class AuthController {
     // @Req() request: Express.Request,
     @GetUser() user: User,
     @GetUser('email') userEmail: string,
-    @RawHeaders() rawHeaders: string[] 
+    @RawHeaders() rawHeaders: string[],
+    @Headers() headers: IncomingHttpHeaders 
   ){
     // console.log(request['rawHeaders']);
      console.log({user, userEmail, rawHeaders});
      
     return {
-      user, userEmail
+      user, userEmail, headers
     };
+  }
+
+  @Get('private2')
+  @SetMetadata('roles', ['admin', 'super-user'])
+  @UseGuards(AuthGuard(), CustomRolesGuard)
+  privateRoutes(
+    @GetUser() user: User
+  ){
+    console.log({user})
+    return user
   }
 
 }
