@@ -17,6 +17,7 @@ export class CustomRolesGuard implements CanActivate {
     const validRoles: string[]  = this.reflector.get(META_ROLES, context.getHandler());
     const user = context.switchToHttp().getRequest().user as User; 
     
+    if(!validRoles) return true;
     if(validRoles.length === 0) return true;
     if(!user) throw new NotFoundException('User not found');
 

@@ -9,6 +9,7 @@ import { IncomingHttpHeaders } from 'http';
 import { CustomRolesGuard } from './guards/custom-roles.guard.ts/custom-roles.guard.ts.guard';
 import { RoleProtected } from './decorators/role-protected/role-protected.decorator';
 import { ValidRoles } from './interfaces/valid-roles.enum';
+import { Auth } from './decorators/auth.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -45,6 +46,16 @@ export class AuthController {
   // @SetMetadata('roles', ['admin', 'super-user'])
   @RoleProtected(ValidRoles.admin, ValidRoles.user)
   @UseGuards(AuthGuard(), CustomRolesGuard)
+  privateRoutes2(
+    @GetUser() user: User
+  ){
+    console.log({user})
+    return user
+  }
+
+  @Get('private3')
+  // @SetMetadata('roles', ['admin', 'super-user'])
+  @Auth(ValidRoles.superUser)
   privateRoutes(
     @GetUser() user: User
   ){
