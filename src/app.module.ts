@@ -8,6 +8,7 @@ import { FilesModule } from './files/files.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AuthModule } from './auth/auth.module';
+import { UppyModule } from './uppy/uppy.module';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import { AuthModule } from './auth/auth.module';
     CommonModule,
     SeedModule,
     FilesModule,
-    AuthModule
+    AuthModule,
+    UppyModule
   ],
 })
 export class AppModule {}
